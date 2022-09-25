@@ -13,6 +13,7 @@ let maze = [];
 let mazeStarted = false;
 let currMazeScore = 0;
 let totalMazeScore = 0;
+let usedHelpScore = 0;
 let currRoom = 0;
 let currRoomNum = 0;
 let SPEED = 9;
@@ -42,6 +43,7 @@ btnStart.addEventListener('click', (e) => {
  });
 
 function startingSequence(e) {
+    usedHelpScore = 0;
     if (!mazeStarted) {
         mazeStarted = true;
         selectMaze();
@@ -85,8 +87,6 @@ function doorLockedLabel(){
 
 // ui methods
 function createRoom(roomNum) {
-    
-
     gameField.remove();
     currMazeScore++;
     const room = document.createElement("div");
@@ -168,9 +168,7 @@ function createRoom(roomNum) {
             solutionDisplay.removeChild(solutionDisplay.firstChild);
         }
         mazeStarted = false;
-        if (maze.solution.length === 0) {
             scoreAnimation();
-        }
         container.appendChild(gameField);
     }
 }
@@ -247,6 +245,7 @@ function createSolved() {
         if (mazeStarted && maze.solution.length < 1) {
         e.preventDefault();
         maze.solve();
+        usedHelpScore = -40;
         solutionDisplay.appendChild(document.createTextNode(maze.solution));
         solutionDisplay.classList.add('solutionDisplay');
         container.appendChild(solutionDisplay);
@@ -262,7 +261,7 @@ function scoreAnimation() {
     x = 100;
     y = bottom /2;
     scoreBubble = document.createElement('div');
-    scoreBubble.appendChild(document.createTextNode(Math.ceil((10 * maze.adjList.size) - (5 * currMazeScore))));
+    scoreBubble.appendChild(document.createTextNode(Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore)));
     scoreBubble.classList.add('scoreBubble');
     container.appendChild(scoreBubble);
     moveScoreBubble();
@@ -312,7 +311,7 @@ function moveScoreBubble() {
             requestAnimationFrame(moveScoreBubble);
          } else {
             scoreBubble.remove();
-            totalMazeScore += Math.ceil((10 * maze.adjList.size) - (5 * currMazeScore));
+            totalMazeScore += Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore);
             totalScore.innerHTML = totalMazeScore;
             currMazeScore = 0;
          }
