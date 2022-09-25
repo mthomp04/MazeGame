@@ -1,4 +1,9 @@
-
+.container2 {
+    position: absolute;
+    border: 20px solid cadetblue;
+    width: 100%;
+    height: 100%;
+}
 
 .container {
     position: absolute;
@@ -271,10 +276,9 @@
 
 }
 
-
-
 .footer {
-    clear: both;
-    margin-top: -200;
-    position: relative;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
