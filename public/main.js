@@ -37,22 +37,25 @@ loadMazes();
 createSolved();
 
 btnStart.addEventListener('click', (e) => {
+    e.preventDefault();
+    startingSequence(e);
+ });
+
+function startingSequence(e) {
     if (!mazeStarted) {
-        e.preventDefault();
         mazeStarted = true;
         selectMaze();
         createRoom(1);
     } else if (mazeStarted && mazes.length > 0) {
-            e.preventDefault();
-            if (solutionDisplay.childNodes.length > 0) {
-                solutionDisplay.remove();
-                solutionDisplay.removeChild(solutionDisplay.firstChild);
-            }
-            currRoom.remove();
-            selectMaze();
-            createRoom(1);
+        if (solutionDisplay.childNodes.length > 0) {
+            solutionDisplay.remove();
+            solutionDisplay.removeChild(solutionDisplay.firstChild);
+        }
+        currRoom.remove();
+        selectMaze();
+        createRoom(1);
     }
- });
+}
 
 function loadMazes() {
     mazes.push(new Maze([[1,2,1,3], [2,1,2,1], [-1,-1,-1,-1]]));
@@ -89,7 +92,7 @@ function createRoom(roomNum) {
     const room = document.createElement("div");
     roomTransition(room);
     currRoom = room;
-    currRoomNum = room;
+    currRoomNum = roomNum;
     const roomTitle = document.createElement("span");
     const doorOne = document.createElement("div");
     doorOne.appendChild(document.createTextNode("A"));
@@ -173,6 +176,7 @@ function createRoom(roomNum) {
 }
 
 window.addEventListener('keydown', (e) => {
+    console.log(currRoomNum);
     
     if (mazeStarted) {
         
@@ -182,7 +186,7 @@ window.addEventListener('keydown', (e) => {
                 if (doorNumA === -1) {
                     doorLockedLabel();
                 } else {
-                    room.remove();
+                    currRoom.remove();
                     createRoom(doorNumA);
                 }   
                 break;
@@ -192,7 +196,7 @@ window.addEventListener('keydown', (e) => {
                 if (doorNumB === -1) {
                     doorLockedLabel();
                 } else {
-                    room.remove();
+                    currRoom.remove();
                     createRoom(doorNumB);
                 }
                 break;
@@ -202,7 +206,7 @@ window.addEventListener('keydown', (e) => {
                 if (doorNumC === -1) {
                     doorLockedLabel();
                 } else {
-                    room.remove();
+                    currRoom.remove();
                     createRoom(doorNumC);
                 }
                 break;
@@ -212,13 +216,20 @@ window.addEventListener('keydown', (e) => {
             if (doorNumD === -1) {
                 doorLockedLabel();
             } else {
-                room.remove();
+                currRoom.remove();
                 createRoom(doorNumD);
             }   
             break;
         }
     }
 });
+
+window.addEventListener('keydown', (e) => {
+    e.preventDefault();
+    if (e.key === 'Enter') {
+        startingSequence();
+    }
+})
 
 function checkWin(roomNum) {
     if (maze.adjList.get(roomNum).exit === true) {
