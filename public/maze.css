@@ -1,11 +1,11 @@
-.container2 {
+.container_main {
     position: absolute;
     border: 20px solid cadetblue;
     width: 100%;
     height: 100%;
 }
 
-.container {
+.container_game {
     position: absolute;
     width: 400px;
     height: 400px;
@@ -20,6 +20,21 @@
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     border-radius: 10px;
     display: inline-block;
+
+}
+
+.container_text {
+    position: absolute;
+    width: 200px;
+    top: 15%;
+    left: 5%;
+    padding: 1%;
+    margin: 2%;
+    background-color:azure;
+    border: 2px solid black;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    border-radius: 10px;
+    display:block;
 
 }
 
@@ -207,7 +222,6 @@
     border-radius: 5px;
     position: absolute;
     padding: 2%;
-    
     transform: translate(-50%, -50%);
     left: 50%;
     top: 50%;
@@ -272,13 +286,4 @@
     position: absolute;
     font-weight: 100px;
     transform: translate(-50%, -50%);
-
-
-}
-
-.footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
 }

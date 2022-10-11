@@ -1,5 +1,6 @@
 import Room from './room.js';
 
+// A maze with a series of rooms
 export default class Maze {
     
     constructor(rooms){
@@ -10,6 +11,7 @@ export default class Maze {
         this.isStarted = false;
     }
 
+    // EFFECTS: Builds series of rooms starting a one where the final room is the exit
     addEdges(rooms) {
         let roomNum = 1;
         for (let i = 0; i < rooms.length; i++) 
@@ -24,93 +26,9 @@ export default class Maze {
             }
         }
 
-    // solve() {
-    //     let queue = [1];
-    //     let path = [];
-    //     this.adjList.set(1, new Room(this.adjList.get(1).a, this.adjList.get(1).b, this.adjList.get(1).c, this.adjList.get(1).d, false, true));
-
-    //     while (queue.length > 0) {
-    //         let curRoom = queue.pop();
-    //         let doorOneNum = this.adjList.get(curRoom).a;
-    //         let doorTwoNum = this.adjList.get(curRoom).b;
-    //         let doorThreeNum = this.adjList.get(curRoom).c;
-    //         let doorFourNum = this.adjList.get(curRoom).d;
-    //         let leftRoom = false;
-    //         path.push(curRoom);
-    //         console.log(path);
-
-    //         if (this.adjList.get(curRoom).exit === true) {
-    //             this.solution = path;
-    //             console.log(path);
-    //             return;
-    //         }
-
-    //         if (doorOneNum != -1) {
-    //             let doorOneRoom = this.adjList.get(doorOneNum);
-    //             if (!doorOneRoom.isVisited) {
-    //                 this.adjList.set(doorOneNum, new Room(doorOneRoom.a, doorOneRoom.b, doorOneRoom.c, doorOneRoom.d, false, true));
-    //                 queue.push(doorOneNum);
-    //                 path.push("A")
-    //             } else {
-    //                 path.pop();
-    //                 path.pop();
-    //                 leftRoom = true;
-    //             }
-    //         } 
-    //         console.log(path);
-
-    //         if (doorTwoNum != -1 && !leftRoom) {
-    //             let doorTwoRoom = this.adjList.get(doorTwoNum);
-    //             if (!doorTwoRoom.isVisited) {
-    //                 this.adjList.set(doorTwoNum, new Room(doorTwoRoom.a, doorTwoRoom.b, doorTwoRoom.c, doorTwoRoom.d, false, true));
-    //                 queue.push(doorTwoNum);
-    //                 path.push("B")
-    //             } else {
-    //                 path.pop();
-    //                 path.pop();
-    //                 leftRoom = true;
-    //             }
-    //         } 
-    //         console.log(path);
-
-    //         if (doorThreeNum != -1 && !leftRoom) {
-    //             let doorThreeRoom = this.adjList.get(doorThreeNum);
-    //             if (!doorThreeRoom.isVisited) {
-    //                 this.adjList.set(doorThreeNum, new Room(doorThreeRoom.a, doorThreeRoom.b, doorThreeRoom.c, doorThreeRoom.d, false, true));
-    //                 queue.push(doorThreeNum);
-    //                 path.push("C")
-    //             } else {
-    //                 path.pop();
-    //                 path.pop();
-    //                 leftRoom = true;
-    //             }
-    //         } 
-    //         console.log(path);
-
-    //         if (doorFourNum != -1 && !leftRoom) {
-    //             let doorFourRoom = this.adjList.get(doorFourNum);
-    //             if (!doorFourRoom.isVisited) {
-    //                 this.adjList.set(doorFourNum, new Room(doorFourRoom.a, doorFourRoom.b, doorFourRoom.c, doorFourRoom.d, false, true));
-    //                 queue.push(doorFourNum);
-    //                 path.push("D")
-    //             } else {
-    //                 path.pop();
-    //                 path.pop();
-    //                 leftRoom = true;
-    //             }
-    //         } 
-    //         console.log(path);
-
-    //         if (!leftRoom) {
-    //             path.pop();
-    //             path.pop();
-    //         }
-
-    //         console.log(path);
-    //     }
-
-    // }
-
+    // REQUIRES: the given series of rooms must be solvable
+    // EFFECTS: Finds a solution of the maze by displaying the room number followed by the door letter to the next room 
+    //          until reaches final room
     solve() {
         let queue = [1];
         let path = []
@@ -118,6 +36,7 @@ export default class Maze {
         this.solveRecursion(queue, path, visited);
     }
     
+    // EFFECTS: Find path from the first room to the final room
     solveRecursion(queue2, path2, visited2) {
         let queue = queue2;
         let path = path2;
@@ -130,7 +49,7 @@ export default class Maze {
         visited.push(curRoom);
         path.push(curRoom);
         
-        if (this.adjList.get(curRoom).exit === true) {
+        if (this.adjList.get(curRoom).getIsExit === true) {
              for (let i = 0; i < path.length; i++) {
                  this.solution.push(path[i]);
              }

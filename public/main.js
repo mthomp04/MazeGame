@@ -1,13 +1,27 @@
 import Maze from "./maze.js";
 
-// ui var
+// Constants
+const BUBBLE_SPEED = 9;
+const NEG_PENATLY = -40; 
+
+// UI Variables
 const btnStart = document.querySelector("#start");
 const btnSolve = document.querySelector("#solve");
 const solutionDisplay = document.createElement("div");
+const gameField = document.querySelector(".room");
+const container = document.querySelector(".container_game");
+const totalScore = document.querySelector(".score");
+const hallway = document.querySelector(".hallway");
+let offsets;
+let left;
+let bottom;
+let top;
+let right;
+let scoreBubble;
+let scoreBubble_X;
+let scoreBubble_Y;
 
-
-
-//const maze = new Maze([[-1,-1,2,4], [-1,-1,3,5], [2,-1,-1,-1],[-1,-1,5,3],[-1,-1,6,1],[-1,-1,-1,-1]]);
+// Helper Variables
 let mazes = [];
 let maze = [];
 let mazeStarted = false;
@@ -16,32 +30,24 @@ let totalMazeScore = 0;
 let usedHelpScore = 0;
 let currRoom = 0;
 let currRoomNum = 0;
-let SPEED = 9;
-const gameField = document.querySelector(".room");
-const container = document.querySelector(".container");
-const totalScore = document.querySelector(".score");
-totalScore.classList.add(".score");
-const scoreContainer = document.querySelector(".scorePanel");
-scoreContainer.classList.add("scorePanel");
-let offsets = container.getBoundingClientRect();
-let left = offsets.x / offsets.left;
-let bottom = offsets.bottom - offsets.top;
-let top = bottom * .78;
-let right = offsets.right - offsets.left;
-const hallway = document.querySelector(".hallway");
-hallway.style.left = offsets.x - offsets.left + (right / 6.8) + "px";
-hallway.style.top = bottom /2 + "px";
-hallway.style.width = right / 3.4 + "px";
 
-
+windowResizing();
 loadMazes();
-createSolved();
 
-btnStart.addEventListener('click', (e) => {
-    e.preventDefault();
-    startingSequence(e);
- });
+// EFFECTS: sets initial size of the hallway b
+function windowResizing() {
+    offsets = container.getBoundingClientRect();
+    left = offsets.x / offsets.left;
+    bottom = offsets.bottom - offsets.top;
+    top = bottom * .78;
+    right = offsets.right - offsets.left;
+    hallway.style.left = offsets.x - offsets.left + (right / 6.8) + "px";
+    hallway.style.top = bottom /2 + "px";
+    hallway.style.width = right / 3.4 + "px";
+}
 
+// EFFECTS: Selects next maze and displays the first room. If a maze is already started 
+//          then loads next maze
 function startingSequence(e) {
     usedHelpScore = 0;
     if (!mazeStarted) {
@@ -52,13 +58,14 @@ function startingSequence(e) {
         if (solutionDisplay.childNodes.length > 0) {
             solutionDisplay.remove();
             solutionDisplay.removeChild(solutionDisplay.firstChild);
-        }
+        }        
         currRoom.remove();
         selectMaze();
         createRoom(1);
     }
 }
 
+// EFFECTS: Creates list of mazes
 function loadMazes() {
     mazes.push(new Maze([[1,2,1,3], [2,1,2,1], [-1,-1,-1,-1]]));
     mazes.push(new Maze([[-1,-1,2,4], [-1,-1,3,5], [2,-1,-1,-1],[-1,-1,5,3],[-1,-1,6,1],[-1,-1,-1,-1]]));
@@ -68,15 +75,19 @@ function loadMazes() {
     mazes.push(new Maze([[-1, 8,2,4], [-1,-1,-1,5], [2,-1,-1,-1],[1,-1,3,2],[3,2,6,7],[4,5,6,10], [9,7,6,11], [8,6,3,4], [-1,-1,6,11], [7,5,-1,-1], [-1,1,-1,12],[-1,-1,-1,-1]]));
 }
 
+// REQUIRES: mazes variable has a list of mazes 
+// EFFECTS: Selects the first maze in the list of mazes and removes it from the list
 function selectMaze() {
     maze = mazes.shift();
 }
 
+// EFFECTS: Fades room colour to black than returns to original
 function roomTransition(room){
     room.classList.add('roomTransition')
     setTimeout(() => room.classList.remove('roomTransition'), 150);
 }
 
+// EFFECTS: Creates label that indicates that door is locked then removes it
 function doorLockedLabel(){
     const lockedDoor = document.createElement("div");
     lockedDoor.appendChild(document.createTextNode("Door is locked!"));
@@ -85,7 +96,7 @@ function doorLockedLabel(){
     setTimeout(() => lockedDoor.remove(), 1500);
 }
 
-// ui methods
+// EFFECTS: Creates UI for current room and checks if current room is exit
 function createRoom(roomNum) {
     gameField.remove();
     currMazeScore++;
@@ -161,6 +172,13 @@ function createRoom(roomNum) {
     room.appendChild(doorFour);
     room.appendChild(roomTitle);
     container.appendChild(room);
+
+    addCheckWin(room, roomNum);
+    
+}
+
+// EFFECTS: Determines if the given room number is the final room. If it is launches scoring animation and resets UI
+function addCheckWin(room, roomNum) { 
     if (checkWin(roomNum)) {
         room.remove();
         if (solutionDisplay.childNodes.length > 0) {
@@ -168,13 +186,103 @@ function createRoom(roomNum) {
             solutionDisplay.removeChild(solutionDisplay.firstChild);
         }
         mazeStarted = false;
-            scoreAnimation();
+        scoreAnimation();
         container.appendChild(gameField);
     }
 }
 
+// EFFECTS: Checks to see if current room is the last. Adds label that indicates win if true else nothing
+function checkWin(roomNum) {
+    if (maze.adjList.get(roomNum).getIsExit === true) {
+        const winGameLabel = document.createElement("div");
+        winGameLabel.appendChild(document.createTextNode("You escaped!"));
+        winGameLabel.classList.add('winGameLabel');
+        gameField.appendChild(winGameLabel);
+        return true;
+    }
+    return false;
+}
+
+// EFFECTS: Creates score bubble (circle with current score) that starts at beginning of hallway
+function scoreAnimation() {
+    scoreBubble = document.createElement('div');
+    scoreBubble_X = 100;
+    scoreBubble_Y = bottom /2;
+    scoreBubble.style.left = right /2 + "px";
+    scoreBubble.style.top = bottom /2 + "px";
+    scoreBubble.appendChild(document.createTextNode(Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore)));
+    scoreBubble.classList.add('scoreBubble');
+    container.appendChild(scoreBubble);
+    moveScoreBubble();
+}
+
+// EFFECTS: Moves scorebubble left down hallway and then around the bottom of the game container and is removed once hit
+//          left side menu. Updates total score by adding current score
+function moveScoreBubble() {
+    
+         if (scoreBubble_X > left & scoreBubble_Y === bottom /2) {
+             scoreBubble.style.left = scoreBubble_X + "px";
+             scoreBubble.style.top = scoreBubble_Y + "px";
+             scoreBubble_X -= BUBBLE_SPEED;
+             requestAnimationFrame(moveScoreBubble);
+         } else if (scoreBubble_X <= left && scoreBubble_Y < bottom){
+            
+            scoreBubble.style.left = scoreBubble_X + "px";
+            scoreBubble.style.top = scoreBubble_Y + "px";
+            scoreBubble_Y += BUBBLE_SPEED;
+            requestAnimationFrame(moveScoreBubble);
+         } else if (scoreBubble_Y >= bottom && scoreBubble_X < right - 5) {
+            scoreBubble.style.left = scoreBubble_X + "px";
+            scoreBubble.style.top = scoreBubble_Y + "px";
+            scoreBubble_X += BUBBLE_SPEED;
+            requestAnimationFrame(moveScoreBubble);
+         } else if (scoreBubble_X >= right - 5 && scoreBubble_Y > top) {
+           
+            scoreBubble.style.left = scoreBubble_X + "px";
+            scoreBubble.style.top = scoreBubble_Y + "px";
+            scoreBubble_Y -= BUBBLE_SPEED;
+            requestAnimationFrame(moveScoreBubble);
+         } else {
+            scoreBubble.remove();
+            totalMazeScore += Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore);
+            totalScore.innerHTML = totalMazeScore;
+            currMazeScore = 0;
+         }
+     }
+
+// EFFECTS: Adds start button event listener     
+btnStart.addEventListener('click', (e) => {
+    e.preventDefault();
+    startingSequence(e);
+ });
+
+ // EFFECTS: Displays solution on the screen. If already displayed then nothing 
+ btnSolve.addEventListener('click', (e) => {
+    if (mazeStarted && maze.solution.length < 1) {
+    e.preventDefault();
+    maze.solve();
+    usedHelpScore = NEG_PENATLY;
+    solutionDisplay.appendChild(document.createTextNode(maze.solution));
+    solutionDisplay.classList.add('solutionDisplay');
+    container.appendChild(solutionDisplay);
+    }
+});
+
+// EFFECTS: adjusts size of the hallway if window size is changed
+ window.addEventListener("resize", function(){
+    offsets = container.getBoundingClientRect();
+    left = offsets.x / offsets.left;
+    bottom = offsets.bottom - offsets.top;
+    top = bottom * .78;
+    right = offsets.right - offsets.left;
+    hallway.style.left = offsets.x - offsets.left + (right / 6.8) + "px";
+    hallway.style.top = bottom /2 + "px";
+    hallway.style.width = right / 3.4 + "px";
+});
+
+// EFFECTS: Adds arrow key events where 'L' enters Door A, 'U' Door B, 'R' Door C, and 'D' Door D 
 window.addEventListener('keydown', (e) => {
-    console.log(currRoomNum);
+    e.preventDefault();
     
     if (mazeStarted) {
         
@@ -222,97 +330,10 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// EFFECTS: Pressing enter launches game
 window.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (e.key === 'Enter') {
         startingSequence();
     }
 })
-
-function checkWin(roomNum) {
-    if (maze.adjList.get(roomNum).exit === true) {
-        const winGameLabel = document.createElement("div");
-        winGameLabel.appendChild(document.createTextNode("You escaped!"));
-        winGameLabel.classList.add('winGameLabel');
-        gameField.appendChild(winGameLabel);
-        return true;
-    }
-    return false;
-}
-
-function createSolved() {
-    btnSolve.addEventListener('click', (e) => {
-        if (mazeStarted && maze.solution.length < 1) {
-        e.preventDefault();
-        maze.solve();
-        usedHelpScore = -40;
-        solutionDisplay.appendChild(document.createTextNode(maze.solution));
-        solutionDisplay.classList.add('solutionDisplay');
-        container.appendChild(solutionDisplay);
-        }
-    });
-}
-
-let  x;
-let y;
-let scoreBubble;
-
-function scoreAnimation() {
-    x = 100;
-    y = bottom /2;
-    scoreBubble = document.createElement('div');
-    scoreBubble.appendChild(document.createTextNode(Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore)));
-    scoreBubble.classList.add('scoreBubble');
-    container.appendChild(scoreBubble);
-    moveScoreBubble();
-}
-
-
-
- window.addEventListener("resize", function(){
-    offsets = container.getBoundingClientRect();
-    left = offsets.x / offsets.left;
-    bottom = offsets.bottom - offsets.top;
-    top = bottom * .78;
-    right = offsets.right - offsets.left;
-    hallway.style.left = offsets.x - offsets.left + (right / 6.8) + "px";
-    hallway.style.top = bottom /2 + "px";
-    hallway.style.width = right / 3.4 + "px";
-    });
- 
-
-
-
-function moveScoreBubble() {
-    scoreBubble.style.left = right /2 + "px";
-    scoreBubble.style.top = bottom /2 + "px";
-
-         if (x > left & y === bottom /2) {
-             scoreBubble.style.left = x + "px";
-             scoreBubble.style.top = y + "px";
-             x -= SPEED;
-             requestAnimationFrame(moveScoreBubble);
-         } else if (x <= left && y < bottom){
-            
-            scoreBubble.style.left = x + "px";
-            scoreBubble.style.top = y + "px";
-            y += SPEED;
-            requestAnimationFrame(moveScoreBubble);
-         } else if (y >= bottom && x < right - 5) {
-            scoreBubble.style.left = x + "px";
-            scoreBubble.style.top = y + "px";
-            x += SPEED;
-            requestAnimationFrame(moveScoreBubble);
-         } else if (x >= right - 5 && y > top) {
-           
-            scoreBubble.style.left = x + "px";
-            scoreBubble.style.top = y + "px";
-            y -= SPEED;
-            requestAnimationFrame(moveScoreBubble);
-         } else {
-            scoreBubble.remove();
-            totalMazeScore += Math.ceil(((10 * maze.adjList.size) - (5 * currMazeScore)) + usedHelpScore);
-            totalScore.innerHTML = totalMazeScore;
-            currMazeScore = 0;
-         }
-     }
