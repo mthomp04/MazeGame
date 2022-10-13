@@ -57,38 +57,34 @@ export default class Maze {
         }
 
         if (doorOne != -1 && !visited.includes(doorOne)) {
-            queue.push(doorOne);
-            path.push(["A"]);
-            this.solveRecursion(queue, path, visited);
-            path.pop();
-            path.pop();
+            this.nextRoom(queue, doorOne, path, visited, "A");
             
         } 
 
         if (doorTwo != -1 && !visited.includes(doorTwo)) {
-            queue.push(doorTwo);
-            path.push(["B"])
-            this.solveRecursion(queue, path, visited);
-            path.pop();
-            path.pop();
+            this.nextRoom(queue, doorTwo, path, visited, "B");
+
         } 
 
         if (doorThree != -1 && !visited.includes(doorThree)) {
-            queue.push(doorThree);
-            path.push(["C"]);
-            this.solveRecursion(queue, path, visited);
-            path.pop();
-            path.pop();
+            this.nextRoom(queue, doorThree, path, visited, "C");
+
         } 
 
         if (doorFour != -1 && !visited.includes(doorFour)) {
-            queue.push(doorFour);
-            path.push(["D"]); 
-            this.solveRecursion(queue, path, visited);
-            path.pop();
-            path.pop();
+            this.nextRoom(queue, doorFour, path, visited, "D");
+
         }
        return;
+    }
+
+    // EFFECTS: Adds new room to queue and removes room and door from path if leads to a previously visited room
+    nextRoom(queue, doorNum, path, visited, doorLetter) {
+        queue.push(doorNum);
+        path.push([doorLetter]);
+        this.solveRecursion(queue, path, visited);
+        path.pop();
+        path.pop();
     }
 }
 
